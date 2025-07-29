@@ -46,21 +46,31 @@ exports.getAllVehicles = async (req, res) => {
     searchQuery={},
   } = req.query;
   try {
-    const parseQuery = typeof searchQuery === "string"
-    ? JSON.parse(searchQuery)
-    : searchQuery || {};
+    let parseQuery = {};
+
+    if (typeof searchQuery === "string" && searchQuery.trim() !== "") {
+      try {
+        parseQuery = JSON.parse(searchQuery);
+      } catch (err) {
+        console.warn("Invalid JSON in searchQuery:", searchQuery);
+        parseQuery = {};
+      }
+    } else if (typeof searchQuery === "object" && searchQuery !== null) {
+      parseQuery = searchQuery;
+    }
+    
   
     const query = {};
 
-    if (parseQuery.pickupLocation) {
+    if (parseQuery?.pickupLocation) {
       query["pickupLocation.address"] = { $regex: parseQuery.pickupLocation, $options: "i" };
     }
-    if (parseQuery.dropoffLocation) {
+    if (parseQuery?.dropoffLocation) {
       query["dropoffLocation.address"] = { $regex: parseQuery.dropoffLocation, $options: "i" };
     }
-    if (parseQuery.pickupDate && parseQuery.dropoffDate) {
-      query["pickupLocation.date"] = { $lte: new Date(parseQuery.pickupDate) };
-      query["dropoffLocation.date"] = { $gte: new Date(parseQuery.dropoffDate) };
+    if (parseQuery?.pickupDate && parseQuery?.dropoffDate) {
+      query["pickupLocation.date"] = { $lte: new Date(parseQuery?.pickupDate) };
+      query["dropoffLocation.date"] = { $gte: new Date(parseQuery?.dropoffDate) };
     }
     
     
