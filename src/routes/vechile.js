@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const vehicleController = require("../controller/vechile");
 const { validate } = require("../middlewares/validate");
@@ -6,7 +6,7 @@ const { vehicleSchema } = require("../utils/validationSchema");
 
 // Create a new vehicle
 router.post("/", validate(vehicleSchema), vehicleController.addVehicle);
-
+router.post("/store-search", vehicleController.storeSearch);
 // Get all vehicles
 router.get("/", vehicleController.getAllVehicles);
 
@@ -14,7 +14,7 @@ router.get("/", vehicleController.getAllVehicles);
 router.get("/:id", vehicleController.getVehicleById);
 
 // Update vehicle by ID
-router.put("/:id",  vehicleController.updateVehicle);
+router.put("/:id", vehicleController.updateVehicle);
 
 // Delete vehicle by ID
 router.delete("/:id", vehicleController.deleteVehicle);

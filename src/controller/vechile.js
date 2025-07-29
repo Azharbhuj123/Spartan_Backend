@@ -4,6 +4,8 @@ const {
   vehicleSchema,
   updateVehicleSchema,
 } = require("../utils/validationSchema");
+const cache = require("../utils/cache");
+const { v4: uuidv4 } = require("uuid");
 
 // Create a new vehicle
 exports.addVehicle = async (req, res) => {
@@ -26,6 +28,14 @@ exports.addVehicle = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+exports.storeSearch = async (req, res) => {
+    const data = req.body;
+    const token = uuidv4(); 
+    cache.set(token, data); 
+
+    res.json({ token }); 
 };
 
 // Get all vehicles
