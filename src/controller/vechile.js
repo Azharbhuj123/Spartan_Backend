@@ -46,7 +46,10 @@ exports.getAllVehicles = async (req, res) => {
     searchQuery={},
   } = req.query;
   try {
-    const parseQuery = searchQuery && JSON.parse(searchQuery);
+    const parseQuery = typeof searchQuery === "string"
+    ? JSON.parse(searchQuery)
+    : searchQuery || {};
+  
     const query = {};
 
     if (parseQuery.pickupLocation) {
