@@ -11,6 +11,10 @@ const vehicleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
 
     yearModel: {
       type: String,
@@ -35,7 +39,8 @@ const vehicleSchema = new mongoose.Schema(
       date:Date,
 
     },
-
+    price:Number,
+    rating: Number,
     reviewsCount: Number,
     feautures: [String],
   },

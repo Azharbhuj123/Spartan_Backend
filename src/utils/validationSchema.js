@@ -25,5 +25,18 @@ module.exports.vehicleSchema = Joi.object({
 });
 
 
+module.exports.campaignSchema = Joi.object({
+  name: Joi.string().required().label('Campaign Name'),
+  discount: Joi.number().required().label('Discount'),
+  description: Joi.string().required().label('Description'),
+  redemCode: Joi.string().label('Redemption Code'),
+  startDate: Joi.date().required().label('Start Date'),
+  endDate: Joi.date().required().label('End Date'),
+  status: Joi.string().required().label('Status'),
+  redemBy: Joi.array().items(Joi.string()).label('Redemption By'),
+});
+
+
+
 
  

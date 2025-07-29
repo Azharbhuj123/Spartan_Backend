@@ -43,29 +43,27 @@ exports.getAllVehicles = async (req, res) => {
   const {
     page = 1,
     limit = 10,
-    pickupLocation,
-    dropoffLocation,
-    pickupDate,
-    dropoffDate,
+    searchQuery={},
   } = req.query;
   try {
-    let query = {};
+    const parseQuery = searchQuery && JSON.parse(searchQuery);
+    const query = {};
 
-    if (pickupLocation) {
-      query.pickupLocation.address = { $regex: pickupLocation, $options: "i" };
+    if (parseQuery.pickupLocation) {
+      query["pickupLocation.address"] = { $regex: parseQuery.pickupLocation, $options: "i" };
     }
-    if (dropoffLocation) {
-      query.dropoffLocation.address = {
-        $regex: dropoffLocation,
-        $options: "i",
-      };
+    if (parseQuery.dropoffLocation) {
+      query["dropoffLocation.address"] = { $regex: parseQuery.dropoffLocation, $options: "i" };
     }
-    if (pickupDate) {
-      query.pickupLocation.date = { $gte: new Date(pickupDate) };
+    if (parseQuery.pickupDate && parseQuery.dropoffDate) {
+      query["pickupLocation.date"] = { $lte: new Date(parseQuery.pickupDate) };
+      query["dropoffLocation.date"] = { $gte: new Date(parseQuery.dropoffDate) };
     }
-    if (dropoffDate) {
-      query.dropoffLocation.date = { $lte: new Date(dropoffDate) };
-    }
+    
+    
+
+    console.log(query);
+
 
     const vehicles = await paginateData(
       Vehicle,
@@ -80,6 +78,7 @@ exports.getAllVehicles = async (req, res) => {
       data: vehicles,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       error: error.message,

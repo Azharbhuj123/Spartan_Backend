@@ -10,6 +10,7 @@ router.post("/store-search", vehicleController.storeSearch);
 // Get all vehicles
 router.get("/", vehicleController.getAllVehicles);
 
+
 // Get single vehicle by ID
 router.get("/:id", vehicleController.getVehicleById);
 
