@@ -14,17 +14,21 @@ console.log(PAYPAL_CLIENT_ID,"PAYPAL_CLIENT_ID",PAYPAL_SECRET,"PAYPAL_SECRET",PA
   const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString(
     "base64"
   );
-  const response = await axios.post(
-    `${PAYPAL_API}/v1/oauth2/token`,
-    "grant_type=client_credentials",
-    {
-      headers: {
+  try {
+    const response = await axios.post(
+      `${PAYPAL_API}/v1/oauth2/token`,
+      "grant_type=client_credentials",
+      {
+        headers: {
         Authorization: `Basic ${auth}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
     }
   );
   return response.data.access_token;
+} catch (error) {
+  console.log(error,"akkakakakakaka");
+}
 }
 
 router.post("/booking-payment-intent", async (req, res) => {
@@ -73,8 +77,9 @@ router.post("/booking-payment-intent", async (req, res) => {
             },
           ],
           application_context: {
-            return_url: "http://localhost:5173/paypal-success", // ✅ Where PayPal redirects after approval
-            cancel_url: "http://localhost:5173/paypal-cancel", // Optional
+            shipping_preference: "NO_SHIPPING",
+            return_url: `http://localhost:5174/status-redirect?orderId=${createBooking._id}&status=success`, // ✅ Where PayPal redirects after approval
+            cancel_url: `http://localhost:5174/status-redirect?orderId=${createBooking._id}&status=cancel`, // Optional
           },
         },
         {
@@ -89,7 +94,7 @@ router.post("/booking-payment-intent", async (req, res) => {
       const approvalUrl = response.data.links.find(
         (link) => link.rel === "approve"
       )?.href;
-
+      console.log(approvalUrl,"approvalUrl");
       res.json({
         payment: true,
         book: true,
@@ -105,14 +110,16 @@ router.post("/booking-payment-intent", async (req, res) => {
   }
 });
 
-router.post('/capture-paypal-order/:orderId', async (req, res) => {
+router.get('/capture-paypal-order/:token/:orderId', async (req, res) => {
   const accessToken = await generateAccessToken();
-
-  const response = await axios.post(
-    `${PAYPAL_API}/v2/checkout/orders/${req.params.orderId}/capture`,
-    {},
-    {
-      headers: {
+  console.log(accessToken,"accessToken");
+  const {token,orderId} = req.params;
+  try {
+    const response = await axios.post(
+      `${PAYPAL_API}/v2/checkout/orders/${token}/capture`,
+      {},
+      {
+        headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       }
@@ -120,6 +127,10 @@ router.post('/capture-paypal-order/:orderId', async (req, res) => {
   );
 
   res.json(response.data);
+} catch (error) {
+  res.status(500).json({ status:"CANCELLED", error: error.message });
+  console.log(error);
+}
 });
 
 
