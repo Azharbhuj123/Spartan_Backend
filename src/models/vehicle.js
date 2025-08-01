@@ -24,19 +24,37 @@ const vehicleSchema = new mongoose.Schema(
     pickupLocation: {
       address: String,
       coordinates: {
-        lat: Number,
-        lng: Number,
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true,
+          index: '2dsphere'
+        }
       },
-      date:Date,
+      date: Date,
     },
 
     dropoffLocation: {
       address: String,
       coordinates: {
-        lat: Number,
-        lng: Number,
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+          required: true
+        },
+        coordinates: {
+          type: [Number],
+          required: true,
+          index: '2dsphere'
+        }
       },
-      date:Date,
+      date: Date,
 
     },
     price:Number,
