@@ -78,8 +78,8 @@ router.post("/booking-payment-intent", async (req, res) => {
           ],
           application_context: {
             shipping_preference: "NO_SHIPPING",
-            return_url: `http://localhost:5174/status-redirect?orderId=${createBooking._id}&status=success`, // ✅ Where PayPal redirects after approval
-            cancel_url: `http://localhost:5174/status-redirect?orderId=${createBooking._id}&status=cancel`, // Optional
+            return_url: `${process.env.FRONT_BASE_URL}/status-redirect?orderId=${createBooking._id}&status=success`, // ✅ Where PayPal redirects after approval
+            cancel_url: `${process.env.FRONT_BASE_URL}/status-redirect?orderId=${createBooking._id}&status=cancel`, // Optional
           },
         },
         {
