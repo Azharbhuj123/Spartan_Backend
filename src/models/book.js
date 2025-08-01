@@ -9,18 +9,12 @@ const bookSchema = new mongoose.Schema(
     },
     pickupLocation:{
         address:String,
-        coordinates:{
-            lat:Number,
-            lng:Number
-        },
+        coordinates:[Number],
         date:Date
     },
     dropoffLocation:{
         address:String,
-        coordinates:{
-            lat:Number,
-            lng:Number
-        },
+        coordinates:[Number],
         date:Date
     },
     contactInfo: {

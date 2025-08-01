@@ -61,7 +61,6 @@ exports.getAllVehicles = async (req, res) => {
     
   
     const query = {};
-    console.log(parseQuery);
     
     // Handle geospatial search using $geoWithin with $centerSphere for better pagination compatibility
     if (parseQuery?.pickupLocation?.coordinates) {
