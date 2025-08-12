@@ -1,6 +1,28 @@
+// middleware/upload.js
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-const storage = multer.memoryStorage(); // Save file in memory as buffer
-const upload = multer({ storage });
+// Create uploads folder if it doesn't exist
+const uploadDir = path.join(__dirname, "../uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
 
-module.exports = upload; 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = `${Date.now()}-${file.originalname}`;
+    cb(null, uniqueName);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  
+});
+
+module.exports = upload;

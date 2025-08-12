@@ -4,24 +4,30 @@ module.exports.vehicleSchema = Joi.object({
   image: Joi.string().required().label('Image'),
   gallery: Joi.array().items(Joi.string()).label('Gallery'),
   name: Joi.string().required().label('Vehicle Name'),
+  description: Joi.string().required().label('Vehicle Name'),
   yearModel: Joi.string().required().label('Year Model'),
   pickupLocation: Joi.object({
     address: Joi.string().required(),
     coordinates: Joi.object({
-      lat: Joi.number().required(),
-      lng: Joi.number().required()
+      type: Joi.string().valid("Point").required(),
+      coordinates: Joi.array().items(Joi.number().required()).length(2).required()
     }).required(),
     date: Joi.date().required()
   }).required(),
+
   dropoffLocation: Joi.object({
     address: Joi.string().required(),
     coordinates: Joi.object({
-      lat: Joi.number().required(),
-      lng: Joi.number().required()
+      type: Joi.string().valid("Point").required(),
+      coordinates: Joi.array().items(Joi.number().required()).length(2).required()
     }).required(),
     date: Joi.date().required()
   }).required(),
-  feautures: Joi.array().items(Joi.string())
+  features: Joi.array().items(Joi.string()),
+  vehicle_specifying:Joi.object().required(),
+  pickupDate:Joi.optional(),
+  dropoffDate:Joi.optional(),
+  price: Joi.number().required(),
 });
 
 

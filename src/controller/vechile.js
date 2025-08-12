@@ -172,10 +172,6 @@ exports.getVehicleById = async (req, res) => {
 // Update vehicle by ID
 exports.updateVehicle = async (req, res) => {
   try {
-    const { error } = updateVehicleSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
 
     const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -224,3 +220,17 @@ exports.deleteVehicle = async (req, res) => {
     });
   }
 };
+
+
+exports.uploadImage = async (req, res) => {
+  try {
+   
+    const file = req.file;
+
+    const imageUrl = `${process.env.BASE_URL_IMG}/uploads/${file.filename}`;
+    res.send({ isImage: true, imageUrl });
+  } catch (error) {
+    res.status(500).send(sendResponse(false, null, error.message));
+  }
+};
+

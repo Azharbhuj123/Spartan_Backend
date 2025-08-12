@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/uploads/", express.static("uploads"));
+app.use("/uploads/", express.static("./src/uploads"));
 app.use("/api", routers);
 
 const PORT = process.env.PORT || 3000;

@@ -26,15 +26,15 @@ const vehicleSchema = new mongoose.Schema(
       coordinates: {
         type: {
           type: String,
-          enum: ['Point'],
-          default: 'Point',
-          required: true
+          enum: ["Point"],
+          default: "Point",
+          required: true,
         },
         coordinates: {
           type: [Number],
           required: true,
-          index: '2dsphere'
-        }
+          index: "2dsphere",
+        },
       },
       date: Date,
     },
@@ -44,23 +44,33 @@ const vehicleSchema = new mongoose.Schema(
       coordinates: {
         type: {
           type: String,
-          enum: ['Point'],
-          default: 'Point',
-          required: true
+          enum: ["Point"],
+          default: "Point",
+          required: true,
         },
         coordinates: {
           type: [Number],
           required: true,
-          index: '2dsphere'
-        }
+          index: "2dsphere",
+        },
       },
       date: Date,
-
     },
-    price:Number,
+    price: Number,
+    features: [String],
+    vehicle_specifying: {
+      engineCapacity: String,
+      transmission: String,
+      mileage: String,
+      fuelType: String,
+      seatingCapacity: String,
+      numberOfDoors: Number,
+      color: String,
+      odometerReading: String,
+    },
+
     rating: Number,
     reviewsCount: Number,
-    feautures: [String],
   },
   { timestamps: true }
 );
