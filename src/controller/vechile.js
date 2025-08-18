@@ -80,11 +80,12 @@ exports.getAllVehicles = async (req, res) => {
       };
     }
     if (nameSearch && nameSearch.trim() !== "") {
-      query["$or"] = {
-        name: { $regex: nameSearch, $options: "i" },
-        yearModel: { $regex: nameSearch, $options: "i" },
-      }; // Case-insensitive search
-    }
+  query["$or"] = [
+    { name: { $regex: nameSearch, $options: "i" } },
+    { yearModel: { $regex: nameSearch, $options: "i" } },
+  ]; // Case-insensitive search
+}
+
 
     // First, get all vehicles matching the pickup location and date criteria
     let vehicles = await paginateData(
