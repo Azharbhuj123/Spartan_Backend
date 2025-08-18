@@ -31,20 +31,16 @@ exports.addVehicle = async (req, res) => {
 };
 
 exports.storeSearch = async (req, res) => {
-    const data = req.body;
-    const token = uuidv4(); 
-    cache.set(token, data); 
+  const data = req.body;
+  const token = uuidv4();
+  cache.set(token, data);
 
-    res.json({ token }); 
+  res.json({ token });
 };
 
 // Get all vehicles
 exports.getAllVehicles = async (req, res) => {
-  const {
-    page = 1,
-    limit = 10,
-    searchQuery={},
-  } = req.query;
+  const { page = 1, limit = 10, searchQuery = {}, nameSearch } = req.query;
   try {
     let parseQuery = {};
 
@@ -58,32 +54,37 @@ exports.getAllVehicles = async (req, res) => {
     } else if (typeof searchQuery === "object" && searchQuery !== null) {
       parseQuery = searchQuery;
     }
-    
-  
+
     const query = {};
-    
+
     // Handle geospatial search using $geoWithin with $centerSphere for better pagination compatibility
     if (parseQuery?.pickupLocation?.coordinates) {
       const { lat, lng } = parseQuery.pickupLocation.coordinates;
       // Convert 10km to radians (Earth's radius is approximately 6371km)
       const radiusInKm = 10;
       const radiusInRadians = radiusInKm / 6371;
-      
+
       query["pickupLocation.coordinates"] = {
         $geoWithin: {
           $centerSphere: [
             [lng, lat], // [longitude, latitude] order
-            radiusInRadians
-          ]
-        }
+            radiusInRadians,
+          ],
+        },
       };
     }
     if (parseQuery?.pickupDate && parseQuery?.dropoffDate) {
       query["pickupLocation.date"] = { $lte: new Date(parseQuery?.pickupDate) };
-      query["dropoffLocation.date"] = { $gte: new Date(parseQuery?.dropoffDate) };
+      query["dropoffLocation.date"] = {
+        $gte: new Date(parseQuery?.dropoffDate),
+      };
     }
-    
-    
+    if (nameSearch && nameSearch.trim() !== "") {
+      query["$or"] = {
+        name: { $regex: nameSearch, $options: "i" },
+        yearModel: { $regex: nameSearch, $options: "i" },
+      }; // Case-insensitive search
+    }
 
     // First, get all vehicles matching the pickup location and date criteria
     let vehicles = await paginateData(
@@ -96,33 +97,30 @@ exports.getAllVehicles = async (req, res) => {
 
     // If we have dropoff location coordinates, filter in memory
     if (parseQuery?.dropoffLocation?.coordinates) {
-      const { lat: dropoffLat, lng: dropoffLng } = parseQuery.dropoffLocation.coordinates;
-      
+      const { lat: dropoffLat, lng: dropoffLng } =
+        parseQuery.dropoffLocation.coordinates;
+
       // Function to calculate distance between two points in kilometers
       const calculateDistance = (lat1, lon1, lat2, lon2) => {
         const R = 6371; // Radius of the earth in km
         const dLat = (lat2 - lat1) * (Math.PI / 180);
         const dLon = (lon2 - lon1) * (Math.PI / 180);
-        const a = 
-          Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos((lat1 * Math.PI) / 180) * 
-          Math.cos((lat2 * Math.PI) / 180) * 
-          Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c; // Distance in km
       };
 
       // Filter vehicles within 10km of dropoff location
       if (vehicles.data && Array.isArray(vehicles.data)) {
-        vehicles.data = vehicles.data.filter(vehicle => {
+        vehicles.data = vehicles.data.filter((vehicle) => {
           if (!vehicle.dropoffLocation?.coordinates?.coordinates) return false;
           const [lng, lat] = vehicle.dropoffLocation.coordinates.coordinates;
-          const distance = calculateDistance(
-            dropoffLat, 
-            dropoffLng, 
-            lat, 
-            lng
-          );
+          const distance = calculateDistance(dropoffLat, dropoffLng, lat, lng);
           return distance <= 10; // 10km radius
         });
 
@@ -172,7 +170,6 @@ exports.getVehicleById = async (req, res) => {
 // Update vehicle by ID
 exports.updateVehicle = async (req, res) => {
   try {
-
     const vehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
@@ -221,10 +218,8 @@ exports.deleteVehicle = async (req, res) => {
   }
 };
 
-
 exports.uploadImage = async (req, res) => {
   try {
-   
     const file = req.file;
 
     const imageUrl = `${process.env.BASE_URL_IMG}/uploads/${file.filename}`;
@@ -233,4 +228,3 @@ exports.uploadImage = async (req, res) => {
     res.status(500).send(sendResponse(false, null, error.message));
   }
 };
-
